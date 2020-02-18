@@ -20,13 +20,13 @@ function handleinput(elapsed) {
 }
 
 function update(elapsed) {
-    // updateFrameTimes(elapsed);
+    updateFrameTimes(elapsed);
 }
 
 function render(elapsed) {
     context.clearRect(0, 0, canvas_size, canvas_size);
 
-    // renderFPS();
+    renderFPS();
     renderMaze();
 }
 
