@@ -60,12 +60,15 @@ function renderCell(i, j) {
     let x = i * wallWidth;
     let y = j * wallHeight;
 
+    context.beginPath();
+
     if (cell.north === null) {
         context.moveTo(x, y);
         context.lineTo(x + wallWidth, y);
     }
 
     context.stroke();
+    context.closePath();
 }
 
 function Maze(width, height) {
