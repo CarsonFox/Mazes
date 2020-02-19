@@ -120,6 +120,33 @@ function loadImage(src) {
     return i;
 }
 
+function shortestPath(a, b) {
+    //mark a visited
+    a.visited = true;
+
+    //The shortest path from b to b is just b
+    if (a.i === b.i && a.j === b.j)
+        return [a];
+
+    //Which neighbor is part of the shortest path?
+    for (let c of connectedNeighbors(a)) {
+        if (!c.visited) {
+            let p = shortestPath(c, b);
+            if (p !== null) {
+                p.push(a);
+                return p;
+            }
+        }
+    }
+
+    //This node isn't part of the shortest path if its neighbors aren't
+    return null;
+}
+
+function connectedNeighbors(cell) {
+    return [cell.north, cell.east, cell.south, cell.west].filter(c => c !== null);
+}
+
 function prim() {
     let walls = [];
 
@@ -193,7 +220,7 @@ function neighbors(i, j) {
 function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+    return Math.floor(Math.random() * (max - min)) + min;
 }
 
 function Maze(width, height) {
@@ -214,6 +241,7 @@ function Maze(width, height) {
 function Cell(i, j) {
     return {
         inMaze: false,
+        visited: false,
         i: i,
         j: j,
         north: null,
