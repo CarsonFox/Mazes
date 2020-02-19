@@ -8,6 +8,7 @@ const background = loadImage('background.webp');
 const character = loadImage('keen.png');
 const star = loadImage('star.png');
 const sizeNode = document.getElementById('size');
+const macGuffin = loadImage('fasul.png');
 
 const directions = {
     north: 1,
@@ -17,7 +18,7 @@ const directions = {
 };
 
 //Global variables
-let maze = null, path = null, last = 0, gameTime = 0, characterPos = null;
+let maze = null, path = null, last = 0, gameTime = 0, characterPos = null, inputBuffer = {};
 
 function gameloop(timestamp) {
     const elapsed = timestamp - last;
@@ -30,7 +31,23 @@ function gameloop(timestamp) {
     requestAnimationFrame(gameloop)
 }
 
-function handleinput(elapsed) {
+function handleinput() {
+    //Arbitrary precidence of directions
+    if (inputBuffer.ArrowDown)
+        moveCharacter(directions.south);
+    else if (inputBuffer.ArrowUp)
+        moveCharacter(directions.north);
+    else if (inputBuffer.ArrowLeft)
+        moveCharacter(directions.west);
+    else if (inputBuffer.ArrowRight)
+        moveCharacter(directions.east);
+
+    //Clear the buffer
+    inputBuffer = {};
+}
+
+function initControls() {
+    window.addEventListener('keydown', event => inputBuffer[event.key] = true)
 }
 
 function update(elapsed) {
@@ -47,6 +64,7 @@ function render() {
     renderTimer();
     renderPath();
     renderCharacter();
+    renderMacGuffin();
 }
 
 function updateFrameTimes(elapsed) {
@@ -122,6 +140,18 @@ function updatePath() {
     path.render = render;
 }
 
+function renderMacGuffin() {
+    if (!macGuffin.ready)
+        return;
+
+    let [i, j] = [maze.width - 1, maze.height - 1];
+    const width = canvas_size / maze.width;
+    const height = canvas_size / maze.height;
+    let x = i * width;
+    let y = j * height;
+    context.drawImage(macGuffin.image, x, y, width, height);
+}
+
 function renderPath() {
     if (!path.render)
         return;
@@ -129,7 +159,8 @@ function renderPath() {
     let [i, j] = characterPos;
     for (let c of path) {
         if (c.i !== i || c.j !== j)
-            renderStar(c.i, c.j);
+            if (c.i !== maze.width - 1 || c.j !== maze.height - 1)
+                renderStar(c.i, c.j);
     }
 }
 
@@ -362,4 +393,5 @@ function Cell(i, j) {
 }
 
 resetGame();
+initControls();
 requestAnimationFrame(gameloop);
