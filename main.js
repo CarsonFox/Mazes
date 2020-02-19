@@ -3,10 +3,8 @@ const context = canvas.getContext('2d');
 const canvas_size = 1024;
 const fpsNode = document.getElementById("fps-node");
 const frameTimes = [];
-const background = {
-    image: new Image(),
-    ready: false,
-};
+const background = loadImage("background.webp");
+const character = loadImage("keen.png");
 
 function gameloop(timestamp) {
     const elapsed = timestamp - last;
@@ -96,6 +94,19 @@ function renderCell(i, j) {
 
     context.closePath();
     context.stroke();
+}
+
+function loadImage(src) {
+    const i = {
+        image: new Image(),
+        ready: false,
+    };
+    i.image.onload = function () {
+        i.ready = true;
+        console.log("Loaded " + src);
+    };
+    i.image.src = src;
+    return i;
 }
 
 function prim() {
@@ -200,13 +211,6 @@ function Cell(i, j) {
         west: null,
     };
 }
-
-
-background.image.onload = function () {
-    background.ready = true;
-    console.log("Loaded background.");
-};
-background.image.src = "background.webp";
 
 canvas.width = canvas_size;
 canvas.height = canvas_size;
