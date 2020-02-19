@@ -2,6 +2,7 @@ const canvas = document.getElementById('canvas-node');
 const context = canvas.getContext('2d');
 const canvas_size = 1024;
 const fpsNode = document.getElementById('fps-node');
+const scoreNode = document.getElementById('score-label');
 const frameTimes = [];
 const timer = document.getElementById('timer');
 const background = loadImage('background.webp');
@@ -19,7 +20,7 @@ const directions = {
 
 //Global variables
 let maze = null, path = null, last = 0, gameTime = 0, characterPos = null, inputBuffer = {}, drawBred = false,
-    drawHint = false;
+    drawHint = false, score = 0;
 
 function gameloop(timestamp) {
     const elapsed = timestamp - last;
@@ -67,6 +68,7 @@ function render() {
     context.clearRect(0, 0, canvas_size, canvas_size);
 
     renderFPS();
+    renderScore();
     renderBackground();
     renderMaze();
     renderTimer();
@@ -117,6 +119,7 @@ function resetGame() {
     drawBred = false;
     drawHint = false;
     gameTime = 0;
+    score = 0;
     characterPos = [0, 0];
     maze.cells[0][0].breadCrumb = true;
     canvas.focus();
@@ -151,7 +154,26 @@ function moveCharacter(d) {
 }
 
 function updateScore() {
+    let [i, j] = characterPos;
+    let current = maze.cells[i][j];
 
+    if (!current.breadCrumb) {
+        if (path.includes(current))
+            score += 5;
+        else if (adjacentToPath(current))
+            score -= 1;
+        else
+            score -= 2;
+    }
+}
+
+function adjacentToPath(cell) {
+    for (let c of connectedNeighbors(cell)) {
+        if (path.includes(c)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function checkWin() {
@@ -289,6 +311,10 @@ function renderFPS() {
         return;
     const fps = 1000 / (frameTimes.reduce((a, b) => a + b) / frameTimes.length);
     fpsNode.innerText = Math.round(fps).toString();
+}
+
+function renderScore() {
+    scoreNode.innerText = `Score: ${score}`;
 }
 
 function renderBackground() {
