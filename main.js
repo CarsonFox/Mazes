@@ -3,6 +3,10 @@ const context = canvas.getContext('2d');
 const canvas_size = 1024;
 const fpsNode = document.getElementById("fps-node");
 const frameTimes = [];
+const background = {
+    image: new Image(),
+    ready: false,
+};
 
 function gameloop(timestamp) {
     const elapsed = timestamp - last;
@@ -26,6 +30,7 @@ function render(elapsed) {
     context.clearRect(0, 0, canvas_size, canvas_size);
 
     renderFPS();
+    renderBackground();
     renderMaze();
 }
 
@@ -43,7 +48,15 @@ function renderFPS() {
     fpsNode.innerText = Math.round(fps).toString();
 }
 
+function renderBackground() {
+    if (background.ready)
+        context.drawImage(background.image, 0, 0, canvas_size - 1, canvas_size - 1);
+}
+
 function renderMaze() {
+    context.strokeStyle = 'rgb(255, 255, 255)';
+    context.lineWidth = 8;
+
     for (let i = 0; i < maze.width; i++) {
         for (let j = 0; j < maze.height; j++) {
             renderCell(i, j);
@@ -188,10 +201,18 @@ function Cell(i, j) {
     };
 }
 
+
+background.image.onload = function () {
+    background.ready = true;
+    console.log("Loaded background.");
+};
+background.image.src = "background.webp";
+
 canvas.width = canvas_size;
 canvas.height = canvas_size;
+
 let maze = Maze(5, 5);
 prim();
-let last = performance.now();
 
+let last = performance.now();
 requestAnimationFrame(gameloop);
