@@ -79,6 +79,15 @@ function render() {
     renderBred();
 }
 
+function displayHighScores() {
+    let highscores = JSON.parse(localStorage['highscores']);
+    highscores.sort((a, b) => b.score - a.score);
+    highscores = highscores.slice(0, 10)
+        .map(s => `${s.name} (${s.size}): ${s.score}`)
+        .join('\n');
+    alert(`Top ten high scores:\n${highscores}`);
+}
+
 function updateFrameTimes(elapsed) {
     frameTimes.push(elapsed);
     if (frameTimes.length > 30) {
