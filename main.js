@@ -3,6 +3,7 @@ const context = canvas.getContext('2d');
 const canvas_size = 1024;
 const fpsNode = document.getElementById("fps-node");
 const frameTimes = [];
+const timer = document.getElementById("timer");
 const background = loadImage("background.webp");
 const character = loadImage("keen.png");
 
@@ -22,6 +23,7 @@ function handleinput(elapsed) {
 
 function update(elapsed) {
     updateFrameTimes(elapsed);
+    updateTimer(elapsed);
 }
 
 function render(elapsed) {
@@ -30,6 +32,7 @@ function render(elapsed) {
     renderFPS();
     renderBackground();
     renderMaze();
+    renderTimer();
 }
 
 function updateFrameTimes(elapsed) {
@@ -37,6 +40,14 @@ function updateFrameTimes(elapsed) {
     if (frameTimes.length > 30) {
         frameTimes.shift();
     }
+}
+
+function updateTimer(elapsed) {
+    gameTime += elapsed;
+}
+
+function renderTimer() {
+    timer.innerText = `Time: ${Math.round(gameTime / 1000)}`;
 }
 
 function renderFPS() {
@@ -219,4 +230,6 @@ let maze = Maze(5, 5);
 prim();
 
 let last = performance.now();
+let gameTime = 0;
+
 requestAnimationFrame(gameloop);
