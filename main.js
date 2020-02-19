@@ -1,7 +1,7 @@
 const canvas = document.getElementById('canvas-node');
 const context = canvas.getContext('2d');
 const canvas_size = 1024;
-const fpsNode = document.getElementById('fps-node');
+// const fpsNode = document.getElementById('fps-node');
 const scoreNode = document.getElementById('score-label');
 const frameTimes = [];
 const timer = document.getElementById('timer');
@@ -60,14 +60,14 @@ function initControls() {
 }
 
 function update(elapsed) {
-    updateFrameTimes(elapsed);
+    // updateFrameTimes(elapsed);
     updateTimer(elapsed);
 }
 
 function render() {
     context.clearRect(0, 0, canvas_size, canvas_size);
 
-    renderFPS();
+    // renderFPS();
     renderScore();
     renderBackground();
     renderMaze();
