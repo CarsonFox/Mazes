@@ -33,14 +33,18 @@ function gameloop(timestamp) {
 
 function handleinput() {
     //Arbitrary precidence of directions
-    if (inputBuffer.ArrowDown)
+    if (inputBuffer['ArrowDown'])
         moveCharacter(directions.south);
-    else if (inputBuffer.ArrowUp)
+    else if (inputBuffer['ArrowUp'])
         moveCharacter(directions.north);
-    else if (inputBuffer.ArrowLeft)
+    else if (inputBuffer['ArrowLeft'])
         moveCharacter(directions.west);
-    else if (inputBuffer.ArrowRight)
+    else if (inputBuffer['ArrowRight'])
         moveCharacter(directions.east);
+
+    if (inputBuffer['p'])
+        path.render = !path.render;
+
 
     //Clear the buffer
     inputBuffer = {};
@@ -114,17 +118,26 @@ function moveCharacter(d) {
 
     if (d === directions.east && currentCell.east !== null) {
         characterPos = [currentCell.east.i, currentCell.east.j];
+        updateBread();
         updatePath();
     } else if (d === directions.west && currentCell.west !== null) {
         characterPos = [currentCell.west.i, currentCell.west.j];
+        updateBread();
         updatePath();
     } else if (d === directions.north && currentCell.north !== null) {
         characterPos = [currentCell.north.i, currentCell.north.j];
+        updateBread();
         updatePath();
     } else if (d === directions.south && currentCell.south !== null) {
         characterPos = [currentCell.south.i, currentCell.south.j];
+        updateBread();
         updatePath();
     }
+}
+
+function updateBread() {
+    let [i, j] = characterPos;
+    maze.cells[i][j].breadCrumb = true;
 }
 
 function updatePath() {
@@ -383,6 +396,7 @@ function Cell(i, j) {
     return {
         inMaze: false,
         visited: false,
+        breadCrumb: false,
         i: i,
         j: j,
         north: null,
