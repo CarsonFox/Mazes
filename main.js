@@ -7,6 +7,13 @@ const timer = document.getElementById("timer");
 const background = loadImage("background.webp");
 const character = loadImage("keen.png");
 
+const directions = {
+    north: 1,
+    south: 2,
+    east: 3,
+    west: 4,
+};
+
 function gameloop(timestamp) {
     const elapsed = timestamp - last;
     last = timestamp;
@@ -26,13 +33,14 @@ function update(elapsed) {
     updateTimer(elapsed);
 }
 
-function render(elapsed) {
+function render() {
     context.clearRect(0, 0, canvas_size, canvas_size);
 
     renderFPS();
     renderBackground();
     renderMaze();
     renderTimer();
+    renderCharacter();
 }
 
 function updateFrameTimes(elapsed) {
@@ -44,6 +52,33 @@ function updateFrameTimes(elapsed) {
 
 function updateTimer(elapsed) {
     gameTime += elapsed;
+}
+
+function moveCharacter(d) {
+    const [i, j] = characterPos;
+    const currentCell = maze.cells[i][j];
+
+    if (d === directions.east && currentCell.east !== null) {
+        characterPos = [currentCell.east.i, currentCell.east.j];
+    } else if (d === directions.west && currentCell.west !== null) {
+        characterPos = [currentCell.west.i, currentCell.west.j];
+    } else if (d === directions.north && currentCell.north !== null) {
+        characterPos = [currentCell.north.i, currentCell.north.j];
+    } else if (d === directions.south && currentCell.south !== null) {
+        characterPos = [currentCell.south.i, currentCell.south.j];
+    }
+}
+
+function renderCharacter() {
+    if (!character.ready)
+        return;
+
+    let [x, y] = characterPos;
+    const width = canvas_size / maze.width;
+    const height = canvas_size / maze.height;
+    x *= width;
+    y *= height;
+    context.drawImage(character.image, x + 10, y + 10, width - 20, height - 20);
 }
 
 function renderTimer() {
@@ -259,5 +294,7 @@ prim();
 
 let last = performance.now();
 let gameTime = 0;
+
+let characterPos = [0, 0];
 
 requestAnimationFrame(gameloop);
