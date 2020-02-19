@@ -1,12 +1,13 @@
 const canvas = document.getElementById('canvas-node');
 const context = canvas.getContext('2d');
 const canvas_size = 1024;
-const fpsNode = document.getElementById("fps-node");
+const fpsNode = document.getElementById('fps-node');
 const frameTimes = [];
-const timer = document.getElementById("timer");
-const background = loadImage("background.webp");
-const character = loadImage("keen.png");
-const star = loadImage("star.png");
+const timer = document.getElementById('timer');
+const background = loadImage('background.webp');
+const character = loadImage('keen.png');
+const star = loadImage('star.png');
+const sizeNode = document.getElementById('size');
 
 const directions = {
     north: 1,
@@ -14,6 +15,9 @@ const directions = {
     east: 3,
     west: 4,
 };
+
+//Global variables
+let maze = null, path = null, last = 0, gameTime = 0, characterPos = null;
 
 function gameloop(timestamp) {
     const elapsed = timestamp - last;
@@ -54,6 +58,36 @@ function updateFrameTimes(elapsed) {
 
 function updateTimer(elapsed) {
     gameTime += elapsed;
+}
+
+function resetGame() {
+    console.log("Resetting game");
+
+    canvas.width = canvas_size;
+    canvas.height = canvas_size;
+
+    switch (sizeNode.value) {
+        case "5x5":
+            maze = Maze(5, 5);
+            break;
+        case "10x10":
+            maze = Maze(10, 10);
+            break;
+        case "15x15":
+            maze = Maze(15, 15);
+            break;
+        case "20x20":
+            maze = Maze(20, 20);
+            break;
+        default:
+            throw "INVALID SIZE OH NO"
+    }
+    prim();
+
+    path = shortestPath(maze.cells[0][0], maze.cells[maze.width - 1][maze.height - 1]);
+    path.render = false;
+    gameTime = 0;
+    characterPos = [0, 0];
 }
 
 function moveCharacter(d) {
@@ -327,18 +361,5 @@ function Cell(i, j) {
     };
 }
 
-canvas.width = canvas_size;
-canvas.height = canvas_size;
-
-let maze = Maze(5, 5);
-prim();
-
-let path = shortestPath(maze.cells[0][0], maze.cells[maze.width - 1][maze.height - 1]);
-path.render = false;
-
-let last = performance.now();
-let gameTime = 0;
-
-let characterPos = [0, 0];
-
+resetGame();
 requestAnimationFrame(gameloop);

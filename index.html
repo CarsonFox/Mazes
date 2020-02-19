@@ -16,6 +16,16 @@
     <tbody>
     <tr>
         <td id="timer"></td>
+        <td><label for="size">Size: </label>
+            <select onchange="resetGame()" id="size">
+                <option value="5x5">5x5</option>
+                <option value="10x10">10x10</option>
+                <option value="15x15">15x15</option>
+                <option value="20x20">20x20</option>
+            </select></td>
+        <td>
+            <button onclick="resetGame()">Reset</button>
+        </td>
     </tr>
     </tbody>
 </table>
