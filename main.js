@@ -16,7 +16,6 @@ function gameloop(timestamp) {
 }
 
 function handleinput(elapsed) {
-
 }
 
 function update(elapsed) {
@@ -59,7 +58,7 @@ function renderCell(i, j) {
 
     let x = i * wallWidth;
     let y = j * wallHeight;
-    
+
     context.beginPath();
 
     if (cell.north === null) {
@@ -86,12 +85,88 @@ function renderCell(i, j) {
     context.stroke();
 }
 
+function prim() {
+    let walls = [];
+
+    let i = getRandomInt(0, maze.width);
+    let j = getRandomInt(0, maze.height);
+    let cell = maze.cells[i][j];
+    cell.inMaze = true;
+
+    for (let n of neighbors(i, j))
+        walls.push([cell, n]);
+
+    while (walls.length > 0) {
+        let rand = getRandomInt(0, walls.length);
+        let wall = walls[rand];
+        cell = unvisited(wall);
+
+        if (cell !== null) {
+            connect(wall);
+            for (let n of neighbors(cell.i, cell.j))
+                walls.push([cell, n]);
+        }
+
+        walls.splice(rand, 1);
+    }
+}
+
+function connect(wall) {
+    let [a, b] = wall;
+    a.inMaze = b.inMaze = true;
+
+    if (a.i > b.i) {
+        a.west = b;
+        b.east = a;
+    } else if (a.i < b.i) {
+        a.east = b;
+        b.west = a;
+    } else if (a.j > b.j) {
+        a.north = b;
+        b.south = a;
+    } else {
+        a.south = b;
+        b.north = a;
+    }
+}
+
+function unvisited(wall) {
+    let [a, b] = wall;
+    if (!a.inMaze)
+        return a;
+    if (!b.inMaze)
+        return b;
+    return null;
+}
+
+function neighbors(i, j) {
+    let n = [];
+
+    if (i > 0)
+        n.push(maze.cells[i - 1][j]);
+    if (j > 0)
+        n.push(maze.cells[i][j - 1]);
+    if (i + 1 < maze.width)
+        n.push(maze.cells[i + 1][j]);
+    if (j + 1 < maze.height)
+        n.push(maze.cells[i][j + 1]);
+
+    return n;
+}
+
+//Yoinked from the MDN page on Math.random()
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+}
+
 function Maze(width, height) {
     let cells = [];
     for (let i = 0; i < width; i++) {
         cells.push([]);
         for (let j = 0; j < height; j++) {
-            cells[i].push(Cell());
+            cells[i].push(Cell(i, j));
         }
     }
     return {
@@ -101,8 +176,11 @@ function Maze(width, height) {
     };
 }
 
-function Cell() {
+function Cell(i, j) {
     return {
+        inMaze: false,
+        i: i,
+        j: j,
         north: null,
         east: null,
         south: null,
@@ -113,6 +191,7 @@ function Cell() {
 canvas.width = canvas_size;
 canvas.height = canvas_size;
 let maze = Maze(5, 5);
+prim();
 let last = performance.now();
 
 requestAnimationFrame(gameloop);
