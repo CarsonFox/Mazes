@@ -125,30 +125,43 @@ function resetGame() {
 function moveCharacter(d) {
     const [i, j] = characterPos;
     const currentCell = maze.cells[i][j];
+    let moved = false;
 
     if (d === directions.east && currentCell.east !== null) {
         characterPos = [currentCell.east.i, currentCell.east.j];
-        updateBread();
-        updatePath();
+        moved = true;
     } else if (d === directions.west && currentCell.west !== null) {
         characterPos = [currentCell.west.i, currentCell.west.j];
-        updateBread();
-        updatePath();
+        moved = true;
     } else if (d === directions.north && currentCell.north !== null) {
         characterPos = [currentCell.north.i, currentCell.north.j];
-        updateBread();
-        updatePath();
+        moved = true;
     } else if (d === directions.south && currentCell.south !== null) {
         characterPos = [currentCell.south.i, currentCell.south.j];
-        updateBread();
-        updatePath();
+        moved = true;
+
     }
 
-    checkWin();
+    if (moved) {
+        updateScore();
+        updateBread();
+        updatePath();
+        checkWin();
+    }
+}
+
+function updateScore() {
+
 }
 
 function checkWin() {
+    let [i, j] = characterPos;
 
+    if (i === maze.width - 1 && j === maze.height - 1) {
+        let name = window.prompt("Congratulations! You win! Enter your name:", "Keen");
+        console.log(`${name} (${sizeNode.value})`);
+        resetGame();
+    }
 }
 
 function updateBread() {
