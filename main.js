@@ -9,7 +9,7 @@ const character = loadImage('keen.png');
 const star = loadImage('star.png');
 const sizeNode = document.getElementById('size');
 const macGuffin = loadImage('fasul.png');
-
+const bred = loadImage('bred.png');
 const directions = {
     north: 1,
     south: 2,
@@ -18,7 +18,7 @@ const directions = {
 };
 
 //Global variables
-let maze = null, path = null, last = 0, gameTime = 0, characterPos = null, inputBuffer = {};
+let maze = null, path = null, last = 0, gameTime = 0, characterPos = null, inputBuffer = {}, drawBred = false;
 
 function gameloop(timestamp) {
     const elapsed = timestamp - last;
@@ -44,6 +44,8 @@ function handleinput() {
 
     if (inputBuffer['p'])
         path.render = !path.render;
+    if (inputBuffer['b'])
+        drawBred = !drawBred;
 
 
     //Clear the buffer
@@ -69,6 +71,7 @@ function render() {
     renderPath();
     renderCharacter();
     renderMacGuffin();
+    renderBred();
 }
 
 function updateFrameTimes(elapsed) {
@@ -108,8 +111,11 @@ function resetGame() {
 
     path = shortestPath(maze.cells[0][0], maze.cells[maze.width - 1][maze.height - 1]);
     path.render = false;
+    drawBred = false;
     gameTime = 0;
     characterPos = [0, 0];
+    maze.cells[0][0].breadCrumb = true;
+    canvas.focus();
 }
 
 function moveCharacter(d) {
@@ -153,6 +159,30 @@ function updatePath() {
     path.render = render;
 }
 
+function renderBred() {
+    if (!bred.ready || !drawBred)
+        return;
+
+    let [ci, cj] = characterPos;
+    const width = canvas_size / maze.width;
+    const height = canvas_size / maze.height;
+
+    for (let i = 0; i < maze.width; i++) {
+        for (let j = 0; j < maze.height; j++) {
+            if (i === ci && j === cj)
+                continue;
+            if (i === maze.width - 1 && j === maze.height - 1)
+                continue;
+            if (!maze.cells[i][j].breadCrumb)
+                continue;
+
+            let x = i * width;
+            let y = j * height;
+            context.drawImage(bred.image, x + width / 4, y + height / 4, width / 2, height / 2);
+        }
+    }
+}
+
 function renderMacGuffin() {
     if (!macGuffin.ready)
         return;
@@ -185,7 +215,7 @@ function renderStar(i, j) {
     const height = canvas_size / maze.height;
     let x = i * width;
     let y = j * height;
-    context.drawImage(star.image, x + 25, y + 25, width - 50, height - 50);
+    context.drawImage(star.image, x + width / 4, y + width / 4, width / 2, height / 2);
 }
 
 function renderCharacter() {
