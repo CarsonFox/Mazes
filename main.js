@@ -18,7 +18,8 @@ const directions = {
 };
 
 //Global variables
-let maze = null, path = null, last = 0, gameTime = 0, characterPos = null, inputBuffer = {}, drawBred = false;
+let maze = null, path = null, last = 0, gameTime = 0, characterPos = null, inputBuffer = {}, drawBred = false,
+    drawHint = false;
 
 function gameloop(timestamp) {
     const elapsed = timestamp - last;
@@ -46,7 +47,8 @@ function handleinput() {
         path.render = !path.render;
     if (inputBuffer['b'])
         drawBred = !drawBred;
-
+    if (inputBuffer['h'])
+        drawHint = !drawHint;
 
     //Clear the buffer
     inputBuffer = {};
@@ -69,6 +71,7 @@ function render() {
     renderMaze();
     renderTimer();
     renderPath();
+    renderHint();
     renderCharacter();
     renderMacGuffin();
     renderBred();
@@ -112,6 +115,7 @@ function resetGame() {
     path = shortestPath(maze.cells[0][0], maze.cells[maze.width - 1][maze.height - 1]);
     path.render = false;
     drawBred = false;
+    drawHint = false;
     gameTime = 0;
     characterPos = [0, 0];
     maze.cells[0][0].breadCrumb = true;
@@ -139,6 +143,12 @@ function moveCharacter(d) {
         updateBread();
         updatePath();
     }
+
+    checkWin();
+}
+
+function checkWin() {
+
 }
 
 function updateBread() {
@@ -159,6 +169,21 @@ function updatePath() {
     path.render = render;
 }
 
+function renderHint() {
+    if (!drawHint)
+        return;
+
+    let [i, j] = characterPos;
+    let current = maze.cells[i][j];
+
+    for (let n of connectedNeighbors(current)) {
+        if (path.includes(n)) {
+            renderStar(n.i, n.j);
+            break;
+        }
+    }
+}
+
 function renderBred() {
     if (!bred.ready || !drawBred)
         return;
@@ -167,6 +192,16 @@ function renderBred() {
     const width = canvas_size / maze.width;
     const height = canvas_size / maze.height;
 
+    let current = maze.cells[ci][cj];
+    let hint = null;
+    if (drawBred) {
+        for (let n of connectedNeighbors(current)) {
+            if (path.includes(n)) {
+                hint = [n.i, n.j];
+            }
+        }
+    }
+
     for (let i = 0; i < maze.width; i++) {
         for (let j = 0; j < maze.height; j++) {
             if (i === ci && j === cj)
@@ -174,6 +209,8 @@ function renderBred() {
             if (i === maze.width - 1 && j === maze.height - 1)
                 continue;
             if (!maze.cells[i][j].breadCrumb)
+                continue;
+            if (drawBred && i === hint[0] && j === hint[1])
                 continue;
 
             let x = i * width;
