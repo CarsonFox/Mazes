@@ -45,14 +45,11 @@ function renderFPS() {
 }
 
 function renderMaze() {
-    context.beginPath();
     for (let i = 0; i < maze.width; i++) {
         for (let j = 0; j < maze.height; j++) {
             renderCell(i, j);
         }
     }
-    context.closePath();
-    context.stroke();
 }
 
 function renderCell(i, j) {
@@ -62,6 +59,8 @@ function renderCell(i, j) {
 
     let x = i * wallWidth;
     let y = j * wallHeight;
+    
+    context.beginPath();
 
     if (cell.north === null) {
         context.moveTo(x, y);
@@ -82,6 +81,9 @@ function renderCell(i, j) {
         context.moveTo(x + wallWidth, y);
         context.lineTo(x + wallWidth, y + wallHeight);
     }
+
+    context.closePath();
+    context.stroke();
 }
 
 function Maze(width, height) {
