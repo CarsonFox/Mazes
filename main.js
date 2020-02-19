@@ -6,6 +6,7 @@ const frameTimes = [];
 const timer = document.getElementById("timer");
 const background = loadImage("background.webp");
 const character = loadImage("keen.png");
+const star = loadImage("star.png");
 
 const directions = {
     north: 1,
@@ -40,6 +41,7 @@ function render() {
     renderBackground();
     renderMaze();
     renderTimer();
+    renderPath();
     renderCharacter();
 }
 
@@ -60,13 +62,52 @@ function moveCharacter(d) {
 
     if (d === directions.east && currentCell.east !== null) {
         characterPos = [currentCell.east.i, currentCell.east.j];
+        updatePath();
     } else if (d === directions.west && currentCell.west !== null) {
         characterPos = [currentCell.west.i, currentCell.west.j];
+        updatePath();
     } else if (d === directions.north && currentCell.north !== null) {
         characterPos = [currentCell.north.i, currentCell.north.j];
+        updatePath();
     } else if (d === directions.south && currentCell.south !== null) {
         characterPos = [currentCell.south.i, currentCell.south.j];
+        updatePath();
     }
+}
+
+function updatePath() {
+    for (let row of maze.cells)
+        for (let c of row)
+            c.visited = false;
+
+    let [i, j] = characterPos;
+    let begin = maze.cells[i][j];
+    let end = maze.cells[maze.width - 1][maze.height - 1];
+    let render = path.render;
+    path = shortestPath(begin, end);
+    path.render = render;
+}
+
+function renderPath() {
+    if (!path.render)
+        return;
+
+    let [i, j] = characterPos;
+    for (let c of path) {
+        if (c.i !== i || c.j !== j)
+            renderStar(c.i, c.j);
+    }
+}
+
+function renderStar(i, j) {
+    if (!star.ready)
+        return;
+
+    const width = canvas_size / maze.width;
+    const height = canvas_size / maze.height;
+    let x = i * width;
+    let y = j * height;
+    context.drawImage(star.image, x + 25, y + 25, width - 50, height - 50);
 }
 
 function renderCharacter() {
@@ -99,7 +140,7 @@ function renderBackground() {
 
 function renderMaze() {
     context.strokeStyle = 'rgb(255, 255, 255)';
-    context.lineWidth = 8;
+    context.lineWidth = 6;
 
     for (let i = 0; i < maze.width; i++) {
         for (let j = 0; j < maze.height; j++) {
@@ -291,6 +332,9 @@ canvas.height = canvas_size;
 
 let maze = Maze(5, 5);
 prim();
+
+let path = shortestPath(maze.cells[0][0], maze.cells[maze.width - 1][maze.height - 1]);
+path.render = false;
 
 let last = performance.now();
 let gameTime = 0;
