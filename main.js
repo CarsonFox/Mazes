@@ -181,7 +181,14 @@ function checkWin() {
 
     if (i === maze.width - 1 && j === maze.height - 1) {
         let name = window.prompt("Congratulations! You win! Enter your name:", "Keen");
-        console.log(`${name} (${sizeNode.value})`);
+        let s = {
+            score: score,
+            name: name,
+            size: sizeNode.value,
+        };
+        let highscores = JSON.parse(localStorage['highscores']);
+        highscores.push(s);
+        localStorage['highscores'] = JSON.stringify(highscores);
         resetGame();
     }
 }
@@ -511,6 +518,9 @@ function Cell(i, j) {
         west: null,
     };
 }
+
+if (localStorage['highscores'] === undefined)
+    localStorage['highscores'] = JSON.stringify([]);
 
 resetGame();
 initControls();
